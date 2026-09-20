@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>パトカーサイレン</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="panel">
+
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="siren-lamp">
+            <div class="lamp-inner"></div>
+        </div>
+
+        <div>
+            <div class="subtitle">SIREN SIMULATOR</div>
+            <h1>パトカーサイレン</h1>
+        </div>
+    </header>
+
+
+    <!-- メイン操作部 -->
+    <main class="controls">
+
+        <!-- 電源 -->
+        <section class="control-group power-group">
+
+            <div class="group-title">
+                電源
+            </div>
+
+            <button
+                id="power"
+                class="control-button power-button"
+                aria-pressed="false">
+
+                <span class="led"></span>
+
+                <span class="power-icon">⏻</span>
+
+                <span class="button-label">
+                    電源
+                </span>
+
+            </button>
+
+        </section>
+
+
+        <!-- 自動モード -->
+        <section class="control-group">
+
+            <div class="group-title">
+                自動モード
+            </div>
+
+            <div class="button-row">
+
+                <button
+                    id="sec4btn"
+                    class="control-button mode-button"
+                    data-mode="sec4"
+                    aria-pressed="false">
+
+                    <span class="led"></span>
+
+                    <span class="button-main">
+                        4秒
+                    </span>
+
+                    <span class="button-sub">
+                        自動
+                    </span>
+
+                </button>
+
+
+                <button
+                    id="sec8btn"
+                    class="control-button mode-button"
+                    data-mode="sec8"
+                    aria-pressed="false">
+
+                    <span class="led"></span>
+
+                    <span class="button-main">
+                        8秒
+                    </span>
+
+                    <span class="button-sub">
+                        自動
+                    </span>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- 手動モード -->
+        <section class="control-group">
+
+            <div class="group-title">
+                手動モード
+            </div>
+
+            <div class="button-row">
+
+                <button
+                    id="up"
+                    class="control-button manual-button"
+                    data-mode="up"
+                    aria-pressed="false">
+
+                    <span class="led"></span>
+
+                    <span class="arrow">▲</span>
+
+                    <span class="button-label">
+                        上げ
+                    </span>
+
+                </button>
+
+
+                <button
+                    id="down"
+                    class="control-button manual-button"
+                    data-mode="down"
+                    aria-pressed="false">
+
+                    <span class="led"></span>
+
+                    <span class="arrow">▼</span>
+
+                    <span class="button-label">
+                        下げ
+                    </span>
+
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- 下部情報 -->
+    <section class="bottom-panel">
+
+        <div class="status-area">
+
+            <div class="status-title">
+                状態
+            </div>
+
+            <div id="status" class="status-display">
+                電源 OFF
+            </div>
+
+        </div>
+
+        <div class="info-area">
+
+            <div class="info-icon">i</div>
+
+            <div>
+                <div>電源を入れてモードを選択してください。</div>
+                <div class="info-small">
+                    選択中のモードは緑色に点灯します。
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script src="sample3.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,649 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            #1d2428 0%,
+            #0b0e10 55%,
+            #050607 100%
+        );
+
+    color: #e7ecef;
+
+    font-family:
+        "Noto Sans JP",
+        "Yu Gothic",
+        "Meiryo",
+        sans-serif;
+
+    padding: 30px 15px;
+}
+
+
+/* =========================================================
+   操作盤本体
+   ========================================================= */
+
+.panel {
+    width: min(1100px, 100%);
+    margin: auto;
+
+    padding: 32px;
+
+    border-radius: 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #182024,
+            #0b1013 55%,
+            #070a0c
+        );
+
+    border: 2px solid #526169;
+
+    box-shadow:
+        0 0 0 5px #11171a,
+        0 0 30px rgba(0, 0, 0, 0.8),
+        inset 0 0 40px rgba(0, 0, 0, 0.6);
+
+    position: relative;
+}
+
+
+/* 四隅のネジ */
+
+.panel::before,
+.panel::after {
+    content: "";
+
+    position: absolute;
+
+    width: 12px;
+    height: 12px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #727d82 0 15%,
+            #252c30 18% 55%,
+            #080a0b 60%
+        );
+
+    box-shadow:
+        0 1px 2px #000;
+}
+
+.panel::before {
+    top: 15px;
+    left: 15px;
+}
+
+.panel::after {
+    top: 15px;
+    right: 15px;
+}
+
+
+/* =========================================================
+   ヘッダー
+   ========================================================= */
+
+.header {
+    display: flex;
+    align-items: center;
+
+    gap: 22px;
+
+    padding-bottom: 22px;
+
+    border-bottom: 2px solid #39464c;
+}
+
+
+.header h1 {
+    margin: 0;
+
+    font-size: clamp(28px, 5vw, 52px);
+
+    letter-spacing: 0.08em;
+
+    color: #f0f3f4;
+
+    text-shadow:
+        0 2px 2px #000;
+}
+
+
+.subtitle {
+    font-family: monospace;
+
+    color: #75838a;
+
+    font-size: 13px;
+
+    letter-spacing: 0.25em;
+
+    margin-bottom: 4px;
+}
+
+
+/* 赤色サイレン */
+
+.siren-lamp {
+    width: 58px;
+    height: 58px;
+
+    border-radius: 50% 50% 45% 45%;
+
+    background:
+        linear-gradient(
+            160deg,
+            #ff7373,
+            #b50000 55%,
+            #3c0000
+        );
+
+    border: 4px solid #4d5659;
+
+    box-shadow:
+        inset 0 -7px 10px rgba(0,0,0,.5),
+        0 0 15px rgba(255,0,0,.2);
+
+    position: relative;
+}
+
+
+.lamp-inner {
+    position: absolute;
+
+    width: 16px;
+    height: 16px;
+
+    left: 50%;
+    top: 12px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background: #ffaaaa;
+
+    box-shadow:
+        0 0 12px #ff0000,
+        0 0 25px rgba(255,0,0,.7);
+}
+
+
+/* =========================================================
+   操作部
+   ========================================================= */
+
+.controls {
+    display: grid;
+
+    grid-template-columns:
+        0.8fr
+        1.6fr
+        1.6fr;
+
+    gap: 30px;
+
+    padding: 35px 0;
+}
+
+
+.control-group {
+    min-width: 0;
+}
+
+
+.group-title {
+    text-align: center;
+
+    font-size: 22px;
+    font-weight: bold;
+
+    margin-bottom: 18px;
+
+    color: #cbd2d5;
+
+    letter-spacing: 0.15em;
+}
+
+
+.button-row {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   ボタン本体
+   ========================================================= */
+
+.control-button {
+    position: relative;
+
+    min-height: 190px;
+
+    border-radius: 22px;
+
+    border: 4px solid #414b50;
+
+    cursor: pointer;
+
+    color: #d9dfe1;
+
+    background:
+        linear-gradient(
+            145deg,
+            #3b4449,
+            #20272b 45%,
+            #111619
+        );
+
+    box-shadow:
+        0 8px 0 #080a0b,
+        0 12px 20px rgba(0,0,0,.55),
+        inset 0 1px 2px rgba(255,255,255,.18),
+        inset 0 -10px 20px rgba(0,0,0,.35);
+
+    transition:
+        border-color .12s,
+        background .12s,
+        box-shadow .12s,
+        transform .08s;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    overflow: hidden;
+}
+
+
+/* LEDの発光 */
+
+.control-button .led {
+    position: absolute;
+
+    inset: 0;
+
+    border-radius: 17px;
+
+    pointer-events: none;
+
+    border: 4px solid transparent;
+
+    opacity: 0;
+
+    transition:
+        opacity .15s,
+        box-shadow .15s,
+        background .15s;
+}
+
+
+/* ---------------------------------------------------------
+   OFF
+   --------------------------------------------------------- */
+
+.control-button:hover {
+    border-color: #647076;
+
+    background:
+        linear-gradient(
+            145deg,
+            #465055,
+            #242c30 50%,
+            #14191c
+        );
+}
+
+
+/* ---------------------------------------------------------
+   ON
+   --------------------------------------------------------- */
+
+.control-button.active {
+
+    border-color: #4cff68;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(40,110,48,.95),
+            rgba(8,40,15,.98)
+        );
+
+    box-shadow:
+        0 8px 0 #071008,
+        0 0 18px rgba(40,255,80,.55),
+        0 0 45px rgba(30,255,60,.22),
+        inset 0 0 25px rgba(50,255,80,.25),
+        inset 0 1px 3px rgba(180,255,190,.5);
+}
+
+
+.control-button.active .led {
+
+    opacity: 1;
+
+    border-color: #51ff69;
+
+    box-shadow:
+        inset 0 0 18px rgba(70,255,90,.35),
+        0 0 10px rgba(70,255,90,.8),
+        0 0 25px rgba(70,255,90,.35);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(80,255,100,.10),
+            rgba(0,100,20,.08)
+        );
+}
+
+
+/* ---------------------------------------------------------
+   押している瞬間
+   --------------------------------------------------------- */
+
+.control-button:active {
+    transform: translateY(5px);
+
+    box-shadow:
+        0 3px 0 #080a0b,
+        0 6px 12px rgba(0,0,0,.5),
+        inset 0 3px 8px rgba(0,0,0,.5);
+}
+
+
+/* =========================================================
+   ボタン内文字
+   ========================================================= */
+
+.button-main {
+    position: relative;
+
+    font-size: clamp(32px, 4vw, 48px);
+
+    font-weight: bold;
+
+    z-index: 1;
+}
+
+
+.button-sub {
+    position: relative;
+
+    color: #899397;
+
+    font-size: 16px;
+
+    z-index: 1;
+}
+
+
+.control-button.active .button-sub {
+    color: #9dffa9;
+}
+
+
+.button-label {
+    position: relative;
+
+    font-size: 23px;
+
+    font-weight: bold;
+
+    z-index: 1;
+}
+
+
+.arrow {
+    position: relative;
+
+    font-size: 55px;
+
+    line-height: 1;
+
+    z-index: 1;
+}
+
+
+.power-icon {
+    position: relative;
+
+    font-size: 60px;
+
+    line-height: 1;
+
+    z-index: 1;
+}
+
+
+/* 電源ボタン */
+
+.power-button {
+    min-height: 190px;
+}
+
+
+/* =========================================================
+   下部パネル
+   ========================================================= */
+
+.bottom-panel {
+
+    border-top: 2px solid #39464c;
+
+    padding-top: 28px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1.5fr;
+
+    gap: 30px;
+}
+
+
+.status-area {
+    text-align: center;
+}
+
+
+.status-title {
+    color: #849096;
+
+    font-size: 14px;
+
+    letter-spacing: .2em;
+
+    margin-bottom: 10px;
+}
+
+
+.status-display {
+
+    min-height: 65px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 10px;
+
+    border: 2px solid #354047;
+
+    background: #050909;
+
+    color: #777;
+
+    font-size: 24px;
+
+    font-family: monospace;
+
+    box-shadow:
+        inset 0 0 15px rgba(0,0,0,.8);
+}
+
+
+.status-display.active {
+
+    color: #66ff7b;
+
+    text-shadow:
+        0 0 8px rgba(70,255,90,.7);
+
+    border-color: #35683c;
+}
+
+
+/* =========================================================
+   説明
+   ========================================================= */
+
+.info-area {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    color: #9aa4a8;
+
+    font-size: 15px;
+
+    line-height: 1.7;
+}
+
+
+.info-icon {
+
+    width: 35px;
+    height: 35px;
+
+    flex-shrink: 0;
+
+    border: 2px solid #667278;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-weight: bold;
+
+    font-family: serif;
+}
+
+
+.info-small {
+    color: #657177;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   スマートフォン
+   ========================================================= */
+
+@media (max-width: 750px) {
+
+    body {
+        padding: 10px;
+    }
+
+    .panel {
+        padding: 20px 15px;
+
+        border-radius: 18px;
+    }
+
+    .header {
+        gap: 14px;
+    }
+
+    .siren-lamp {
+        width: 42px;
+        height: 42px;
+    }
+
+    .header h1 {
+        font-size: 26px;
+    }
+
+    .controls {
+        grid-template-columns: 1fr;
+
+        gap: 28px;
+    }
+
+    .button-row {
+        gap: 12px;
+    }
+
+    .control-button {
+        min-height: 150px;
+    }
+
+    .bottom-panel {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================================
+   非常に小さい画面
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+    .button-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .control-button {
+        min-height: 135px;
+    }
+
+    .button-main {
+        font-size: 30px;
+    }
+
+    .arrow {
+        font-size: 42px;
+    }
+
+    .power-icon {
+        font-size: 48px;
+    }
+}

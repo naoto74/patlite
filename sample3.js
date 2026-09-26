@@ -1,105 +1,13 @@
-
-/**
- * @param {number} start 
- * @param {number} end 
- * @param {number} k 
- * @param {number} t 
- * @returns {number}
- */
-const exponentialFrequency = (start, end, k, t) => end + (start - end) * Math.exp(-k * t);
 const audio = new AudioContext();
+
 /** @type {AudioWorkletNode | null} */
-let node;
+let node = null;
 
+let powerOn = false;
 
-let mode = "down";
-let startTime = performance.now();
-let currentFrequency = 170;
-let f = currentFrequency;
-
-function update() {
-	if(!node) return;
-    const t = (performance.now() - startTime) / 1000;
-
-    if (mode === "up") {
-        f = exponentialFrequency(
-            currentFrequency,
-            850,
-            2.5,
-            t
-        );
-    }else if(mode == "down"){
-        f = exponentialFrequency(
-            currentFrequency,
-            170,
-            0.24,
-            t
-        );
-    }else if(mode == "off"){
-        f = exponentialFrequency(
-            currentFrequency,
-            100,
-            0.24,
-            t
-        );
-    }else if(mode == "sec4"){
-		if(t < 2){
-			f = exponentialFrequency(
-				currentFrequency,
-				850,
-				5,
-				t
-			);
-		}else{
-			mode = "sec4down";
-			currentFrequency = f;
-			startTime = performance.now();
-		}
-	}else if(mode == "sec4down"){
-		if(t < 2){
-			f = exponentialFrequency(
-				currentFrequency,
-				170,
-				0.47,
-				t
-			);
-		}else{
-			currentFrequency = f;
-			mode = "sec4";
-			startTime = performance.now();
-		}
-	}else if(mode == "sec8"){
-		if(t < 4.5){
-			f = exponentialFrequency(
-				currentFrequency,
-				850,
-				2.5,
-				t
-			);
-		}else{
-			mode = "sec8down";
-			currentFrequency = f;
-			startTime = performance.now();
-		}
-	}else if(mode == "sec8down"){
-		if(t < 3.5){
-			f = exponentialFrequency(
-				currentFrequency,
-				170,
-				0.24,
-				t
-			);
-		}else{
-			currentFrequency = f;
-			mode = "sec8";
-			startTime = performance.now();
-		}
-	}
-	node.port.postMessage({
-		f0: f
-	});
-    requestAnimationFrame(update);
-}
+// ---------------------------------------------------------
+// DOM
+// ---------------------------------------------------------
 
 const powerButton = document.getElementById("power");
 const sec4Button = document.getElementById("sec4btn");
@@ -111,31 +19,71 @@ const status = document.getElementById("status");
 
 
 // ---------------------------------------------------------
-// 電源
+// AudioWorklet 初期化
 // ---------------------------------------------------------
 
-let powerOn = false;
+async function createAudioNode() {
+
+    if (node) {
+        return;
+    }
+
+    await audio.audioWorklet.addModule(
+        "siren-processor.js?v=7"
+    );
+
+    node = new AudioWorkletNode(
+        audio,
+        "siren-processor"
+    );
+
+    node.connect(audio.destination);
+}
+
+
+// ---------------------------------------------------------
+// Workletへモードを送信
+// ---------------------------------------------------------
+
+function setMode(mode) {
+
+    if (!node) {
+        return;
+    }
+
+    node.port.postMessage({
+        type: "mode",
+        mode
+    });
+}
+
+
+// ---------------------------------------------------------
+// 電源
+// ---------------------------------------------------------
 
 powerButton.onclick = async () => {
 
     powerOn = !powerOn;
 
-    powerButton.classList.toggle("active", powerOn);
-    powerButton.setAttribute("aria-pressed", powerOn);
+    powerButton.classList.toggle(
+        "active",
+        powerOn
+    );
+
+    powerButton.setAttribute(
+        "aria-pressed",
+        powerOn
+    );
+
+
+    // -----------------------------------------------------
+    // ON
+    // -----------------------------------------------------
 
     if (powerOn) {
 
-        // 初回だけAudioWorkletを読み込む
-        if (!node) {
-            await audio.audioWorklet.addModule("siren-processor.js?v=6");
-
-            node = new AudioWorkletNode(
-                audio,
-                "siren-processor"
-            );
-
-            node.connect(audio.destination);
-        }
+        await createAudioNode();
 
         await audio.resume();
 
@@ -143,18 +91,25 @@ powerButton.onclick = async () => {
 
         updateStatus();
 
-        requestAnimationFrame(update);
-
-    } else {
-
-        // 音を止める
-        mode = "off";
-
-        status.textContent = "電源 OFF";
-        status.classList.remove("active");
-
-        clearModes();
+        return;
     }
+
+
+    // -----------------------------------------------------
+    // OFF
+    // -----------------------------------------------------
+
+    if (node) {
+
+        // Worklet側で100Hzへゆっくり下げる
+        setMode("off");
+    }
+
+    status.textContent = "電源 OFF";
+
+    status.classList.remove("active");
+
+    clearModes();
 };
 
 
@@ -169,9 +124,29 @@ function clearModes() {
         .forEach(button => {
 
             button.classList.remove("active");
-            button.setAttribute("aria-pressed", "false");
 
+            button.setAttribute(
+                "aria-pressed",
+                "false"
+            );
         });
+}
+
+
+// ---------------------------------------------------------
+// モード選択
+// ---------------------------------------------------------
+
+function selectMode(button) {
+
+    clearModes();
+
+    button.classList.add("active");
+
+    button.setAttribute(
+        "aria-pressed",
+        "true"
+    );
 }
 
 
@@ -181,16 +156,13 @@ function clearModes() {
 
 sec4Button.onclick = () => {
 
-    if (!powerOn)
+    if (!powerOn) {
         return;
+    }
 
     selectMode(sec4Button);
 
-    currentFrequency = f;
-
-    mode = "sec4";
-
-    startTime = performance.now();
+    setMode("sec4");
 
     updateStatus();
 };
@@ -202,16 +174,13 @@ sec4Button.onclick = () => {
 
 sec8Button.onclick = () => {
 
-    if (!powerOn)
+    if (!powerOn) {
         return;
+    }
 
     selectMode(sec8Button);
 
-    currentFrequency = f;
-
-    mode = "sec8";
-
-    startTime = performance.now();
+    setMode("sec8");
 
     updateStatus();
 };
@@ -223,16 +192,13 @@ sec8Button.onclick = () => {
 
 upButton.onclick = () => {
 
-    if (!powerOn)
+    if (!powerOn) {
         return;
+    }
 
     selectMode(upButton);
 
-    currentFrequency = f;
-
-    mode = "up";
-
-    startTime = performance.now();
+    setMode("up");
 
     updateStatus();
 };
@@ -244,38 +210,16 @@ upButton.onclick = () => {
 
 downButton.onclick = () => {
 
-    if (!powerOn)
+    if (!powerOn) {
         return;
+    }
 
     selectMode(downButton);
 
-    currentFrequency = f;
-
-    mode = "down";
-
-    startTime = performance.now();
+    setMode("down");
 
     updateStatus();
 };
-
-
-// ---------------------------------------------------------
-// モード選択
-// ---------------------------------------------------------
-
-function selectMode(button) {
-
-    // 4秒/8秒/上げ/下げを全部OFF
-    clearModes();
-
-    // 選択されたものだけON
-    button.classList.add("active");
-
-    button.setAttribute(
-        "aria-pressed",
-        "true"
-    );
-}
 
 
 // ---------------------------------------------------------
@@ -285,30 +229,41 @@ function selectMode(button) {
 function updateStatus() {
 
     if (!powerOn) {
+
         status.textContent = "電源 OFF";
+
         return;
     }
 
-    switch (mode) {
 
-        case "sec4":
-            status.textContent = "自動　4秒";
-            break;
+    // UI側で現在選択されているボタンを確認
+    if (sec4Button.classList.contains("active")) {
 
-        case "sec8":
-            status.textContent = "自動　8秒";
-            break;
+        status.textContent = "自動　4秒";
 
-        case "up":
-            status.textContent = "手動　上げ";
-            break;
-
-        case "down":
-            status.textContent = "手動　下げ";
-            break;
-
-        default:
-            status.textContent = "モード未選択";
-            break;
+        return;
     }
+
+    if (sec8Button.classList.contains("active")) {
+
+        status.textContent = "自動　8秒";
+
+        return;
+    }
+
+    if (upButton.classList.contains("active")) {
+
+        status.textContent = "手動　上げ";
+
+        return;
+    }
+
+    if (downButton.classList.contains("active")) {
+
+        status.textContent = "手動　下げ";
+
+        return;
+    }
+
+    status.textContent = "モード未選択";
 }

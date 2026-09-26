@@ -80,7 +80,7 @@ class SirenProcessor extends AudioWorkletProcessor {
             if (this.phase >= 2 * Math.PI) {
                 this.phase -= 2 * Math.PI;
             }
-			const f0vol = 1/(1+Math.exp(-1/50*(f0-500)))
+			const f0vol = Math.min(Math.max(0,Math.max(f0-450)/100),1)*(1/(1+Math.exp(-1/50*(f0-500))));
 
             channel[i] = sample*f0vol;
         }

@@ -127,7 +127,7 @@ powerButton.onclick = async () => {
 
         // 初回だけAudioWorkletを読み込む
         if (!node) {
-            await audio.audioWorklet.addModule("siren-processor.js");
+            await audio.audioWorklet.addModule("siren-processor.js?v=5");
 
             node = new AudioWorkletNode(
                 audio,
